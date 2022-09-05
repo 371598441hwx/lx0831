@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/java2206?serverTimezone=UTC
+  thymeleaf:
+    prefix: classpath:/templates/pages/
+mybatis-plus:
+  config-location: classpath:mybatis-config.xml
+  type-aliases-package: com.example.lx0831.pojo
+  mapper-locations: classpath:/mapper/*Mapper.xml

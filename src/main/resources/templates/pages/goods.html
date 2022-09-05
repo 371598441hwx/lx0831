@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>商品信息查询</title>
+    <style>
+      table img{
+        width: 25px;
+        height: 25px;
+      }
+    </style>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="/js/tools.js"></script>
+</head>
+
+<body>
+
+<form action="/find" method="get">
+  <select name="cid" id="cid">
+    <option value="0">所有分类</option>
+    <option th:each="cls:${classes}" th:value="${cls.cid}" th:selected="${#strings.equals(cls.cid, param.cid)}">[[${cls.cname}]]</option>
+  </select>
+  <select name="bname" id="bname">
+    <option value="">所有品牌</option>
+    <option th:each="brand:${brands}" th:selected="${#strings.equals(brand.bname, param.bname)}">[[${brand.bname}]]</option>
+  </select>
+  关键字: <input type="text" id="keyword" name="keyword" placeholder="支持货号/商品名称模糊查询" th:value="${param.keyword}">
+  <button>搜索</button>
+</form>
+<button id="priceasc">按价格升序查询</button>
+<button id="pricedesc">按价格降序查询</button>
+<table width="800" border="1">
+  <tr>
+    <th>编号</th>
+    <th  >商品名称↑</th>
+    <th id="numorder" title="0">货号↑</th>
+    <th>价格</th>
+    <th>上架</th>
+    <th>精品</th>
+    <th>新品</th>
+    <th>热销</th>
+    <th>点击次数</th>
+    <th>库存</th>
+    <th>类型</th>
+    <th>品牌</th>
+  </tr>
+  <tbody  id="tableId">
+  <tr th:each = "goods : ${info.records}">
+    <td>[[${goods.gid}]]</td>
+    <td>[[${goods.gname}]]</td>
+    <td>[[${goods.number}]]</td>
+    <td>[[${goods.price}]]</td>
+    <td><img th:src="${goods.grounding==1 ? '/img/dui.png' : '/img/cuo.png'}"></td>
+    <td><img th:src="${goods.article==1 ? '/img/dui.png' : '/img/cuo.png'}"></td>
+    <td><img th:src="${goods.newflag==1 ? '/img/dui.png' : '/img/cuo.png'}"></td>
+    <td><img th:src="${goods.hot==1 ? '/img/dui.png' : '/img/cuo.png'}"></td>
+    <td>[[${goods.click}]]</td>
+    <td>[[${goods.stock}]]</td>
+    <td>[[${goods.cid}]]</td>
+    <td>[[${goods.bid}]]</td>
+  </tr>
+  </tbody>
+</table>
+<div id="pageinfo">
+  共[[${info.total}]]条记录， 共[[${info.pages}]]页
+  <a href="" th:each="index:${#numbers.sequence(1,info.pages)}">[[${index}]]</a>
+</div>
+<script>
+  $('#numorder').on('click', function(){
+    if(this.title == 0){
+      sortAsc(2);
+    }else{
+      sortDesc(2);
+    }
+    this.title = this.title == 1 ? 0 : 1;
+    this.innerHTML = this.title == 1 ?"货号↑":"货号↓";
+  });
+
+  $("#priceasc").click(function(){
+    var query = getQuery();
+    query = query + "&ordclu=price&order=0";
+     location.href="/find"+query;
+  })
+
+  $("#pricedesc").click(function(){
+    var query = getQuery();
+    query = query + "&ordclu=price&order=1";
+    location.href="/find"+query;
+  })
+  function getQuery(){
+    var query = "?cid="+$("#cid").val()+"&bname="+$("#bname").val()+"&keyword="+$("#keyword").val();
+    return query;
+  }
+
+  $("#pageinfo").on("click", "a", function(){
+    var query = getQuery();
+    query = query + "&pno="+this.innerHTML;
+    var colname = $.getUrlParam('ordclu');
+    var order = $.getUrlParam('order') == null? 0 : $.getUrlParam('order');
+    console.log(colname, order);
+    if(colname !=null){
+      query += "&ordclu="+colname+"&order="+order;
+    }
+    location.href="/find"+query;
+    return false;
+  });
+
+  $("#cid").change(function(){
+    location.href="/find"+getQuery();
+  })
+</script>
+</body>
+</html>
